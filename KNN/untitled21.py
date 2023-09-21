@@ -14,6 +14,8 @@ from tensorflow.keras.datasets import mnist
 # Load the MNIST dataset
 (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
 
+
+
 train_images_flat = train_images.reshape(train_images.shape[0], 28*28)
 
 test_images_flat = test_images.reshape(test_images.shape[0], 28*28)
@@ -21,6 +23,18 @@ test_images_flat = test_images.reshape(test_images.shape[0], 28*28)
 28*28
 
 train_images_flat
+
+import numpy as np
+
+test_array = np.array(test_images_flat)
+train_array = np.array(train_images_flat)
+
+grid_x = np.concatenate((test_array, train_array), axis=0)
+
+test_labels_array = np.array(test_labels)
+train_labels_array = np.array(train_labels)
+
+grid_y = np.concatenate((test_labels_array, train_labels_array), axis=0)
 
 # Define the number of sample images to display
 num_samples = 5
@@ -49,7 +63,34 @@ knn.fit(train_images_flat, train_labels)
 
 test_pred = knn.predict(test_images_flat)
 
-test_pred
+list(test_pred)
 
-test_labels
+list(test_labels)
 
+# 1, 1, 1, 0, 0 ,0 predykcja
+# 0, 1, 1, 1, 0, 1 real
+
+# accuracy = poprawnych / wszystkie sample
+# accuracy = 3 / 6 = 50%
+
+# 1, 1, 1, 1, 1, 0, 0 real
+# f1_score 0-1
+
+from sklearn.metrics import f1_score
+
+f1_score(test_labels, test_pred, average=None)
+
+from sklearn.metrics import classification_report
+
+print(classification_report(test_labels, test_pred))
+
+# [ - - - - -]
+
+from sklearn.model_selection import GridSearchCV
+
+param_grid = {'n_neighbors': list(range(1,2))}
+
+# Set up grid search
+grid_search = GridSearchCV(knn, param_grid, cv=5)
+
+grid_search.fit(grid_x, grid_y)
